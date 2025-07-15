@@ -20,10 +20,8 @@ pub fn make_tuple_expr(loc : Location, exprs : @list.T[Expr]) -> Expr {
 }
 
 ///| Create array expression with possible spread elements
-pub fn make_array_expr(
-  loc : Location,
-  elems : @list.T[SpreadableElem]
-) -> Expr {
+pub fn make_array_expr(loc : Location, elems : @list.T[SpreadableElem]) -> Expr {
+  ignore((loc, elems))
   // Try to convert to regular array if no spread elements
   ...
 }
@@ -76,10 +74,7 @@ pub fn make_constant_pattern(loc : Location, c : Constant) -> Pattern {
 }
 
 ///| Create tuple pattern
-pub fn make_tuple_pattern(
-  loc : Location,
-  pats : @list.T[Pattern]
-) -> Pattern {
+pub fn make_tuple_pattern(loc : Location, pats : @list.T[Pattern]) -> Pattern {
   Tuple(pats~, loc~)
 }
 
@@ -140,7 +135,7 @@ pub fn make_uplus(loc : Location, name : String, arg : Expr) -> Expr {
 pub fn make_uminus(loc : Location, name : String, arg : Expr) -> Expr {
   match (name, arg) {
     ("-", Constant(c=Constant::Int(x), loc=_)) => {
-      let new_val = if x.length() > 0 && x[0] == '-' {
+      let new_val = if x.length() > 0 && x.char_at(0) == '-' {
         x.substring(start=1)
       } else {
         "-" + x
@@ -148,7 +143,7 @@ pub fn make_uminus(loc : Location, name : String, arg : Expr) -> Expr {
       make_constant_expr(loc, Constant::Int(new_val))
     }
     ("-", Constant(c=Constant::Int64(x), loc=_)) => {
-      let new_val = if x.length() > 0 && x[0] == '-' {
+      let new_val = if x.length() > 0 && x.char_at(0) == '-' {
         x.substring(start=1)
       } else {
         "-" + x
@@ -156,7 +151,7 @@ pub fn make_uminus(loc : Location, name : String, arg : Expr) -> Expr {
       make_constant_expr(loc, Constant::Int64(new_val))
     }
     ("-", Constant(c=Constant::Double(x), loc=_)) => {
-      let new_val = if x.length() > 0 && x[0] == '-' {
+      let new_val = if x.length() > 0 && x.char_at(0) == '-' {
         x.substring(start=1)
       } else {
         "-" + x
@@ -172,7 +167,7 @@ pub fn make_uminus(loc : Location, name : String, arg : Expr) -> Expr {
 
 ///| Create logical not expression
 pub fn make_unot(loc : Location, arg : Expr) -> Expr {
-  let op = Var::{ name: Ident(name = "!"), loc }
+  let op = Var::{ name: Ident(name="!"), loc }
   Unary(op~, expr=arg, loc~)
 }
 
@@ -231,18 +226,12 @@ pub fn desugar_array_augmented_set(
   let arr_name = "*array_" + counter.val.to_string()
   counter.val = counter.val + 1
   let arr_loc = loc_of_expression(array)
-  let arr_var = Var::{
-    name: Ident(name=arr_name),
-    loc: arr_loc,
-  }
+  let arr_var = Var::{ name: Ident(name=arr_name), loc: arr_loc }
   let arr_ident = make_ident_expr(arr_loc, arr_var)
   let idx_name = "*index_" + counter.val.to_string()
   counter.val = counter.val + 1
   let idx_loc = loc_of_expression(index)
-  let idx_var = Var::{
-    name: Ident(name=idx_name),
-    loc: idx_loc,
-  }
+  let idx_var = Var::{ name: Ident(name=idx_name), loc: idx_loc }
   let idx_ident = make_ident_expr(idx_loc, idx_var)
   Let(
     pattern=Pattern::Var(Binder::{ name: arr_name, loc: no_location }),
@@ -310,10 +299,7 @@ pub fn make_field_def(
 
 ///| Convert label to expression
 pub fn label_to_expr(loc : Location, label : Label) -> Expr {
-  make_ident_expr(loc, Var::{
-    name: Ident(name=label.name),
-    loc,
-  })
+  make_ident_expr(loc, Var::{ name: Ident(name=label.name), loc })
 }
 
 ///| Convert label to pattern
@@ -366,21 +352,19 @@ pub fn make_legacy_type_alias(
   deriving : @list.T[DerivingDirective],
   loc : Location
 ) -> TypeDecl? {
-  ...
+  ignore((binder_expr, target, attrs, vis, deriving, loc))
+  ... // TODO
 }
 
 ///| Arrow function parameter type
-pub enum ArrowFnParam {
+pub(all) enum ArrowFnParam {
   Named(Binder)
   Unnamed(Location)
 }
 
 ///| Convert binder to expression
 pub fn binder_to_expr(p : Binder) -> Expr {
-  make_ident_expr(p.loc, Var::{
-    name:Ident(name=p.name),
-    loc: p.loc,
-  })
+  make_ident_expr(p.loc, Var::{ name: Ident(name=p.name), loc: p.loc })
 }
 
 ///| Convert arrow function parameter to expression
@@ -397,7 +381,7 @@ pub fn make_arrow_fn(
   body : Expr,
   loc : Location
 ) -> Func {
-  let parameters = @list.map(params, fn(p) {
+  let parameters = params.map(fn(p) {
     let (param, ty) = p
     match param {
       Named(binder) => Parameter::Positional(binder~, ty~)
@@ -508,7 +492,7 @@ fn shift_col(pos : Position, offset : Int) -> Position {
 // Placeholder types that need to be defined
 
 ///|
-pub enum InterpolationComponent {
+pub(all) enum InterpolationComponent {
   InterpLit(StringLiteral, Location)
   InterpSource(@ast_types.InterpSource)
 }
