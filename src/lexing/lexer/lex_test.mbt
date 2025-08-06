@@ -101,3 +101,8 @@ test "tokens utf16_escape" (t : @test.T) {
 test "tokens multiline_string_interp" (t : @test.T) {
   test_tokens(t, "multiline_string_interp")
 }
+
+///|
+test "tokens multiline_string_interp" (t : @test.T) {
+  test_tokens(t, "attribute_name")
+}
