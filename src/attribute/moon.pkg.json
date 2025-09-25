@@ -11,6 +11,5 @@
         "moonbitlang/parser/lexer",
         "moonbitlang/parser/basic"
     ],
-    // TODO: we need #warn() attribute to suppress specific warnings
     "warn-list": "-6-3"
 }
